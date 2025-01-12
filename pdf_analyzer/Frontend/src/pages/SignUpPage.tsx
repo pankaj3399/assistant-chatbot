@@ -37,9 +37,7 @@ export default function SignUpPage() {
         email,
         clerkId,
       });
-      
       console.log(resp.data);
-      
     } catch (error) {
       if (axios.isAxiosError(error)) {
         console.log(error.status);
@@ -56,6 +54,7 @@ export default function SignUpPage() {
         signInUrl="/signin"
         forceRedirectUrl={"/home"}
         signInForceRedirectUrl={"/home"}
+        
       />
     </div>
   );
