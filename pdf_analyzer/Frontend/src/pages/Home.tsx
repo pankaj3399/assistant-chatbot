@@ -107,7 +107,7 @@ const Home = () => {
               { analysis.length <= 0 ? <div className='w-full text-center text-gray-400 p-3'><p></p></div>:<div className='grid grid-cols-1 md:grid-cols-4 gap-3 p-3'>
                   {analysis.map(item => (
                     <div key={item._id} className='p-3 bg-white border border-orange-500 rounded-xl shadow-md flex flex-col'>
-                      <h4 className='font-universe font-semibold'>{item.name}</h4>
+                      <h4 className='font-universe font-semibold text-wrap'>{item.name}</h4>
                       <p className='text-xs text-gray-500'>{item.response.substring(0,50)}...</p>
                       <div className='flex justify-between items-end mt-4 flex-1'>
                         <Link to={`/chat/${item._id}`} className='flex gap-1 items-center'>Open <ArrowUpRight className='w-4 h-4' /></Link>
