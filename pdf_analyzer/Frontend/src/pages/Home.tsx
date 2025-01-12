@@ -4,12 +4,15 @@ import NavBar from '@/components/Home/navbar'
 import { ArrowUpRight, Loader2Icon, Plus, Trash2 } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import { useEffect, useState } from 'react'
-import { useAuth } from '@clerk/clerk-react'
+import { useAuth, useUser } from '@clerk/clerk-react'
 import axios from 'axios'
+
+const API_URL = import.meta.env.VITE_API_URL;
 
 
 const Home = () => {
   const {isSignedIn, getToken} = useAuth()
+  const {user} = useUser()
   const [analysis, setAnalysis] = useState<any[]>([])
   const [loading, setLoading] = useState(false)
   const [isDeleting, setIsDeleting] = useState(false)
@@ -18,23 +21,50 @@ const Home = () => {
   useEffect(()=>{
     const authUser = async () => {
       if(isSignedIn === undefined) return;
+      setLoading(true)
       const token = await getToken()
       setAuthToken(token)
-      getAllAnalysis()
+      console.log(user);
+      if(user){
+        await sendUserDataToBackend(user.id, user.emailAddresses[0].emailAddress)
+        await getAllAnalysis()
+      }
     }
     authUser()
-  },[isSignedIn])
+  },[isSignedIn, user])
+
+  const sendUserDataToBackend = async (
+    clerkId: string,
+    email: string,
+  ): Promise<void> => {
+    try {
+      const resp = await axios.post(`${API_URL}/api/users/signup`, {
+        email,
+        clerkId,
+      });
+      console.log(resp.data);
+    } catch (error) {
+      if (axios.isAxiosError(error)) {
+        console.log(error.status);
+        console.error(error.response);
+      } else {
+        console.error(error);
+      }
+    }
+  };
 
 
   const getAllAnalysis = async () => {
     try{
-      setLoading(true)
+      
       const res = await apiClient.get("/api/users/analysis");
       if(res.data)
         setAnalysis(res.data.analysis)
     }catch(err){
       console.log(err);
       if(axios.isAxiosError(err)){
+        console.log(error);
+        
         setError(err.message)
       }else{
         setError("Something went wrong!")
@@ -73,9 +103,8 @@ const Home = () => {
           </div>
           <div className='flex-1 overflow-y-auto'>
               {loading && <div className='w-full h-full grid place-items-center'><Loader2Icon className='w-8 h-8 text-orange-400 animate-spin' /></div>}
-              {error && <div className='w-full text-center text-red-500'><p>{error}</p></div>}
 
-              { analysis.length <= 0 ? <div className='w-full text-center text-gray-400 p-3'><p>No Analysis Yet</p></div>:<div className='grid grid-cols-1 md:grid-cols-4 gap-3 p-3'>
+              { analysis.length <= 0 ? <div className='w-full text-center text-gray-400 p-3'><p></p></div>:<div className='grid grid-cols-1 md:grid-cols-4 gap-3 p-3'>
                   {analysis.map(item => (
                     <div key={item._id} className='p-3 bg-white border border-orange-500 rounded-xl shadow-md flex flex-col'>
                       <h4 className='font-universe font-semibold'>{item.name}</h4>
